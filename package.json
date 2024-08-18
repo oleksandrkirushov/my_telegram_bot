@@ -2,16 +2,18 @@
   "name": "aspirant_bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js "
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
   },
   "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "del": "^7.1.0",
+    "gulp": "^5.0.0",
     "node-telegram-bot-api": "^0.66.0",
     "nodemon": "^3.1.4"
   }
