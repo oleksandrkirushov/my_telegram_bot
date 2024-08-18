@@ -1,7 +1,7 @@
 import  TelegramApi  from 'node-telegram-bot-api'
 import  {MENEG} from './data/index.js'
 
-const token= '7205118617:AAFufFeJLMrJoZofrCpC6_xHl45TM3sIO4U'
+const token= process.env.TELEGRAM_BOT_TOKEN
 
 const bot= new TelegramApi(token, {polling:true})
 
