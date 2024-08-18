@@ -26,4 +26,8 @@ jobs:
       run: |
         npm install
         npx gulp build
+        - name: Run bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
         node dist/index.js
