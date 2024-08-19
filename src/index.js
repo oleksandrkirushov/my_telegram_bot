@@ -8,11 +8,18 @@ const bot= new TelegramApi(token, {polling:true})
 const gl={
   index:0,
   list:[],
-  interval: 10000,
+  interval: 2000,
   chatId: null,
   askId: null,
 }
-// const regex=new RegExp(/^\//, 'g')
+
+const nextButton = {
+  reply_markup: JSON.stringify({
+    inline_keyboard: [
+      [{text:"Next", callback_data:"/next"}]
+    ]
+  })
+}
 
 bot.setMyCommands([
   {command:"/next", description:'next'},
@@ -20,63 +27,67 @@ bot.setMyCommands([
 ])
 
 bot.on('message', async msg=>{
-  console.log('msg.text >>', msg.text)
   gl.chatId=msg.chat.id;
 
   if(msg.text==='/start'){
-    return  bot.sendMessage(gl.chatId, 'Please choose question in <b>MENU</b>', {parse_mode : "HTML"})
+    return bot.sendMessage(gl.chatId, 'Please choose question in <b>MENU</b>', { parse_mode: "HTML" });
   }
 
-  if(msg.text==='/next'){
-    return getNext()
-  }
-  
-  // console.log('regex.test(msg.text) >>', regex.test(msg.text))
 
-  // if(regex.test(msg.text)){
+  if (msg.text !== '/next') {
     gl.askId=msg.text.replace(/\//,'');
-  // }else {
-  //   gl.askId=msg.text
-  // }
+    gl.index = 0
+    preparetion(gl.askId)
+  }
 
-
-  return getAnswer(gl.askId);
-
+  return getAnswer();
 })
 
-function getNext(){
-  const arr=gl.list;
+bot.on('callback_query', async msg => {
+  gl.chatId = msg.message.chat.id;
+  
+  if (msg.data === '/next') {
+    return getAnswer()
+  }
+})
 
-  setTimeout(()=>{
+// function getNext(){
+//   const arr=gl.list;
 
-    for(let i=gl.index+1; i<arr.length; i++){
-      sendTextPart(i, arr, true)
+//   setTimeout(()=>{
 
-      if (i+1===((gl.index+1)/10+1)*10){
-        gl.index=i;
-        return
-      }
-    }
+//     for(let i=gl.index+1; i<arr.length; i++){
+//       sendTextPart(i, arr, true)
 
+//       if (i+1===((gl.index+1)/10+1)*10){
+//         gl.index=i;
+//         return
+//       }
+//     }
+
+//   },3000)
+// }
+
+function  getAnswer(){
+  const arr = gl.list;
+  const start = gl.index;
+  const end = gl.index + 10;
+  const answer = [...arr].slice(start, end).reverse();
+  const isHasLastEl = answer.includes(arr[arr.length - 1]);
+  
+  gl.index = end;
+
+  setTimeout(() => {
+    answer.forEach((item, i, array) => {
+        const isNextButton=(!isHasLastEl && (i===array.length-1))
+        sendTextPart(i, arr, item, isNextButton)
+      });
   },3000)
 }
 
-function  getAnswer(id){
-  const text = MENEG.find(item=>id===item.id)?.text;
+function preparetion(id) {
+  const text = MENEG.find(item => id === item.id)?.text;
   gl.list= splitStringBy200Chars(text);
-  const arr=gl.list
-
-  setTimeout(()=>{
-
-    for(let i=0; i<arr.length; i++){
-      sendTextPart(i, arr)
-
-      if (i+1===10){
-        gl.index=i;
-        return
-      }
-    }
-  },3000)
 }
 
 function splitString(str) {
@@ -88,12 +99,14 @@ function splitString(str) {
   return result;
 }
 
-function sendTextPart(i, arr, nextMode=false){
-  const message=`[${(i === arr.length-1?'END ':'')+(i+1)}] ` + arr[i];
-  const index= !nextMode?i:i%10
+function sendTextPart(i, arr, item, isNextButton=false){
+  const order = arr.findIndex(x => x === item);
+  const message = `[${(order === arr.length - 1 ? 'END ' : '') + (order + 1)}] ` + item;
+  const options=isNextButton?nextButton:{}
+  
   setTimeout(()=>{
-      bot.sendMessage(gl.chatId, message, {parse_mode : "HTML"})},
-    gl.interval*index);
+      bot.sendMessage(gl.chatId, message, options)},
+    gl.interval*i);
 }
 
 function createCommands(data){
