@@ -8,11 +8,11 @@ const bot= new TelegramApi(token, {polling:true})
 const gl={
   index:0,
   list:[],
-  interval:2000,
+  interval: 10000,
   chatId: null,
   askId: null,
 }
-const regex=new RegExp(/^\//, 'g')
+// const regex=new RegExp(/^\//, 'g')
 
 bot.setMyCommands([
   {command:"/next", description:'next'},
@@ -31,7 +31,7 @@ bot.on('message', async msg=>{
     return getNext()
   }
   
-  console.log('regex.test(msg.text) >>', regex.test(msg.text))
+  // console.log('regex.test(msg.text) >>', regex.test(msg.text))
 
   // if(regex.test(msg.text)){
     gl.askId=msg.text.replace(/\//,'');
