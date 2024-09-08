@@ -1,5 +1,6 @@
 import  TelegramApi  from 'node-telegram-bot-api'
 import  {MENEG} from './data/index.js'
+import {PIDPR} from "./data/index.js";
 
 const token= '7205118617:AAFufFeJLMrJoZofrCpC6_xHl45TM3sIO4U'
 
@@ -8,7 +9,7 @@ const bot= new TelegramApi(token, {polling:true})
 const gl={
   index:0,
   list:[],
-  interval: 2000,
+  interval: 3000,
   chatId: null,
   askId: null,
 }
@@ -21,15 +22,16 @@ const nextButton = {
   })
 }
 
-bot.setMyCommands([
-  {command:"/next", description:'next'},
-  ...createCommands(MENEG)
-])
+
 
 bot.on('message', async msg=>{
   gl.chatId=msg.chat.id;
 
   if(msg.text==='/start'){
+    bot.setMyCommands([
+      {command:"/next", description:'next'},
+      ...createCommands(PIDPR)
+    ])
     return bot.sendMessage(gl.chatId, 'Please choose question in <b>MENU</b>', { parse_mode: "HTML" });
   }
 
@@ -86,7 +88,7 @@ function  getAnswer(){
 }
 
 function preparetion(id) {
-  const text = MENEG.find(item => id === item.id)?.text;
+  const text = PIDPR.find(item => id === item.id)?.text;
   gl.list= splitStringBy200Chars(text);
 }
 
